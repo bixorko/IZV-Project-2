@@ -15,15 +15,7 @@ def get_dataframe(filename: str, verbose: bool = False) -> pd.DataFrame:
     if verbose:
         print("orig_size={:.1f} MB".format(df.memory_usage(index=True, deep=True).sum()/1048576))
     df['date'] = df['p2a']
-    #print(df['date'])
-    #print(df['p2a'])
-    #print(df.columns.values)
-    
-    #df['date'] = pd.to_datetime(df['date'], format='%Y-%m-%d')
-    #df['p2a'] = pd.to_datetime(df['date'], format='%Y-%m-%d')
-    #df['p1'] = pd.to_numeric(df['p1'])
 
-    #maybe todo?
     df = df.astype('category')
     df['p13a'] = pd.to_numeric(df['p13a'])
     df['p13b'] = pd.to_numeric(df['p13b'])
@@ -33,8 +25,6 @@ def get_dataframe(filename: str, verbose: bool = False) -> pd.DataFrame:
     
     if verbose:
         print("new_size={:.1f} MB".format(df.memory_usage(index=True, deep=True).sum()/1048576))
-
-    #print(df.info(memory_usage='deep'))
     
     return df
 
@@ -64,8 +54,18 @@ def plot_conseq(df: pd.DataFrame, fig_location: str = None,
 
     fig.set_size_inches(6.5, 9.5)
 
+    if fig_location:
+        fig_location = fig_location.split('/')
+        myfile = fig_location[-1]
+        fig_location = "/".join(fig_location[0:-1])
+        if not os.path.exists(fig_location) and fig_location:
+            os.makedirs(fig_location)
+        plt.savefig(os.path.join(fig_location, myfile))
+
     if show_figure:
         plt.show()
+
+    plt.close()
 
 # Ukol3: příčina nehody a škoda
 def plot_damage(df: pd.DataFrame, fig_location: str = None,
@@ -123,8 +123,19 @@ def plot_damage(df: pd.DataFrame, fig_location: str = None,
     plt.subplots_adjust(right=0.78, wspace=0.1) 
 
     fig.suptitle('Pricina nehody a skoda')
+
+    if fig_location:
+        fig_location = fig_location.split('/')
+        myfile = fig_location[-1]
+        fig_location = "/".join(fig_location[0:-1])
+        if not os.path.exists(fig_location) and fig_location:
+            os.makedirs(fig_location)
+        plt.savefig(os.path.join(fig_location, myfile))
+
     if show_figure:
         plt.show()
+    
+    plt.close()
     
 # Ukol 4: povrch vozovky
 def plot_surface(df: pd.DataFrame, fig_location: str = None,
