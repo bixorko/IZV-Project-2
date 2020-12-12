@@ -264,7 +264,7 @@ def plot_surface(df: pd.DataFrame, fig_location: str = None,
     plt.close()
 
 if __name__ == "__main__":
-    #pass
+    pass
     # zde je ukazka pouziti, tuto cast muzete modifikovat podle libosti
     # skript nebude pri testovani pousten primo, ale budou volany konkreni ¨
     # funkce.
