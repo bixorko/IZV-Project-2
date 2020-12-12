@@ -17,14 +17,18 @@ def get_dataframe(filename: str, verbose: bool = False) -> pd.DataFrame:
     df['date'] = df['p2a']
 
     df = df.astype('category')
+    
     df['p13a'] = pd.to_numeric(df['p13a'])
     df['p13b'] = pd.to_numeric(df['p13b'])
     df['p13c'] = pd.to_numeric(df['p13c'])
     df['p53'] = pd.to_numeric(df['p53'])
     df['region'] = df['region'].astype(str)
+    df['date'] = pd.to_datetime(df['date'], format='%Y-%m-%d').astype('datetime64[ns]')
     
     if verbose:
         print("new_size={:.1f} MB".format(df.memory_usage(index=True, deep=True).sum()/1048576))
+    
+    #print(df.info(memory_usage='deep'))
     
     return df
 
@@ -120,7 +124,7 @@ def plot_damage(df: pd.DataFrame, fig_location: str = None,
     fig.legend(handles, labels, loc='right', bbox_to_anchor=(1.0, 0.5))
 
     fig.set_size_inches(13, 10)
-    plt.subplots_adjust(right=0.78, wspace=0.1) 
+    plt.subplots_adjust(right=0.78, wspace=0.2) 
 
     fig.suptitle('Pricina nehody a skoda')
 
@@ -140,8 +144,124 @@ def plot_damage(df: pd.DataFrame, fig_location: str = None,
 # Ukol 4: povrch vozovky
 def plot_surface(df: pd.DataFrame, fig_location: str = None,
                  show_figure: bool = False):
-    pass
 
+    pd.options.mode.chained_assignment = None
+    fig, axs = plt.subplots(nrows=2, ncols=2)
+
+    df1 = df.loc[(df['region'] == 'JHM')]
+    
+    df1['reason'] = pd.cut(df1['p16'], bins=[0,1,2,3,4,5,6,7,8,9,10], include_lowest=True, right=False, 
+    labels=['Iny stav','Suchy - neznecisteny','Suchy-znecisteny','Mokry','Blato','Poladovica - posypane', 'poladovica - neposypane', 
+            'rozliaty olej', 'snehova vrstva','nahla zmena stavu'])
+
+    df1 = df1.reset_index()
+    df1['date'] = df1['date'].apply(lambda x: x.strftime('%Y-%m'))
+    df1.set_index('date', inplace=True)
+    
+    pivoted = df1.pivot_table(index=['date','reason'], aggfunc='size')
+    pivoted = pivoted.to_frame().reset_index()
+
+    pivoted.columns = ['date', 'reason', 'count']
+
+    g = sns.lineplot(x="date", y="count", hue="reason", data=pivoted, ax=axs[0,0])
+    g.set_title('JHM')
+    g.set(xlabel='', ylabel='Pocet nehod')
+    g.legend_.remove()
+
+
+
+    df1 = df.loc[(df['region'] == 'LBK')]
+    
+    df1['reason'] = pd.cut(df1['p16'], bins=[0,1,2,3,4,5,6,7,8,9,10], include_lowest=True, right=False, 
+    labels=['Iny stav','Suchy - neznecisteny','Suchy-znecisteny','Mokry','Blato','Poladovica - posypane', 'poladovica - neposypane', 
+            'rozliaty olej', 'snehova vrstva','nahla zmena stavu'])
+
+    df1 = df1.reset_index()
+    df1['date'] = df1['date'].apply(lambda x: x.strftime('%Y-%m'))
+    df1.set_index('date', inplace=True)
+    
+    pivoted = df1.pivot_table(index=['date','reason'], aggfunc='size')
+    pivoted = pivoted.to_frame().reset_index()
+
+    pivoted.columns = ['date', 'reason', 'count']
+
+    g = sns.lineplot(x="date", y="count", hue="reason", data=pivoted, ax=axs[0,1])
+    g.set_title('LBK')
+    g.set(xlabel='', ylabel='')
+    g.legend_.remove()
+
+
+
+    df1 = df.loc[(df['region'] == 'PHA')]
+    
+    df1['reason'] = pd.cut(df1['p16'], bins=[0,1,2,3,4,5,6,7,8,9,10], include_lowest=True, right=False, 
+    labels=['Iny stav','Suchy - neznecisteny','Suchy-znecisteny','Mokry','Blato','Poladovica - posypane', 'poladovica - neposypane', 
+            'rozliaty olej', 'snehova vrstva','nahla zmena stavu'])
+
+    df1 = df1.reset_index()
+    df1['date'] = df1['date'].apply(lambda x: x.strftime('%Y-%m'))
+    df1.set_index('date', inplace=True)
+    
+    pivoted = df1.pivot_table(index=['date','reason'], aggfunc='size')
+    pivoted = pivoted.to_frame().reset_index()
+
+    pivoted.columns = ['date', 'reason', 'count']
+
+    g = sns.lineplot(x="date", y="count", hue="reason", data=pivoted, ax=axs[1,0])
+    g.set_title('PHA')
+    g.set(xlabel='Rok', ylabel='Pocet nehod')
+    g.legend_.remove()
+
+
+
+    df1 = df.loc[(df['region'] == 'STC')]
+    
+    df1['reason'] = pd.cut(df1['p16'], bins=[0,1,2,3,4,5,6,7,8,9,10], include_lowest=True, right=False, 
+    labels=['Iny stav','Suchy - neznecisteny','Suchy-znecisteny','Mokry','Blato','Poladovica - posypane', 'poladovica - neposypane', 
+            'rozliaty olej', 'snehova vrstva','nahla zmena stavu'])
+
+    df1 = df1.reset_index()
+    df1['date'] = df1['date'].apply(lambda x: x.strftime('%Y-%m'))
+    df1.set_index('date', inplace=True)
+    
+    pivoted = df1.pivot_table(index=['date','reason'], aggfunc='size')
+    pivoted = pivoted.to_frame().reset_index()
+
+    pivoted.columns = ['date', 'reason', 'count']
+
+    g = sns.lineplot(x="date", y="count", hue="reason", data=pivoted, ax=axs[1,1])
+    g.set_title('STC')
+    g.set(xlabel='Rok', ylabel='')
+    g.legend_.remove()
+
+    
+
+    for j in range(2):
+        for k in range(2):
+            for i, label in enumerate(axs[j,k].get_xticklabels()):
+                if i % 12 != 0:
+                    label.set_visible(False)
+
+    handles, labels = axs[0,0].get_legend_handles_labels()
+    fig.legend(handles, labels, loc='right', bbox_to_anchor=(1.0, 0.5))
+
+    fig.set_size_inches(15, 10)
+    plt.subplots_adjust(right=0.78, wspace=0.1) 
+
+    fig.suptitle('Stav vozovky v case nehod')
+
+    if fig_location:
+        fig_location = fig_location.split('/')
+        myfile = fig_location[-1]
+        fig_location = "/".join(fig_location[0:-1])
+        if not os.path.exists(fig_location) and fig_location:
+            os.makedirs(fig_location)
+        plt.savefig(os.path.join(fig_location, myfile))
+
+    if show_figure:
+        plt.show()
+    
+    plt.close()
 
 if __name__ == "__main__":
     #pass
@@ -151,4 +271,4 @@ if __name__ == "__main__":
     df = get_dataframe("accidents.pkl.gz", verbose=True)
     plot_conseq(df, fig_location="01_nasledky.png", show_figure=True)
     plot_damage(df, "02_priciny.png", True)
-    #plot_surface(df, "03_stav.png", True)
+    plot_surface(df, "03_stav.png", True)
